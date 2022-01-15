@@ -1,6 +1,13 @@
-Simple permutation generator written in Golang
+Simple permutation generator written in Go
 
 It allows for custom word length, word separator and charset
+
+to compile the code, you need Go installed
+
+```
+cd /path/to/project
+go build .
+```
 
 possible arguments:
 
@@ -13,7 +20,6 @@ possible arguments:
 
     --chrs, ––charset
         a charset to be used, by default the 26-letter lowercase Latin alphabet is used
-
 ```
 
 example uses:
