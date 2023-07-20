@@ -35,7 +35,7 @@ func main() {
 }
 
 func getOSArgInt(prefix string, keys []string, defaultValue int64) (int64, error) {
-	noMatchString := "-"
+	noMatchString := ""
 	valueStr := GetOSArg(prefix, keys, noMatchString)
 
 	if valueStr != noMatchString {
