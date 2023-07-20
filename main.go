@@ -3,57 +3,80 @@ package main
 import (
 	"fmt"
 	"math"
-	"sync"
-	"time"
+	"os"
+	"strconv"
+	"strings"
 )
 
 func main() {
-	// var wg sync.WaitGroup
-	var out [][]string
-	start := time.Now()
+	var outArr []string
 
-	fmt.Println("starting...")
+	prefix := "--"
 
-	startidx := 4
-	endidx := 5
+	separator := GetOSArg(prefix, []string{"sep", "separator"}, " ")
 
-	charset := ""
-
-	charset += "abcdefghijklmnopqrstuvwxyz"
-	// charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-	// charset += "0123456789"
-
-	for i := startidx; i <= endidx; i++ {
-		out = append(out, generateString(i, charset, nil))
+	start_perm_len, err := getOSArgInt(prefix, []string{"len", "startlen"}, 3)
+	if err != nil {
+		panic(err.Error())
 	}
 
-	for i := range out {
-		fmt.Printf("%d passwords of length %d for a charset of length %d\n", len(out[i]), i+startidx, len(charset))
+	end_perm_len, err := getOSArgInt(prefix, []string{"endlen"}, start_perm_len)
+	if err != nil {
+		panic(err.Error())
 	}
 
-	fmt.Println("concuted in", time.Since(start))
-	// fmt.Println(out)
+	charset := GetOSArg(prefix, []string{"chrs", "charset"}, "abcdefghijklmnopqrstuvwxyz")
+
+	for i := int(start_perm_len); i <= int(end_perm_len); i++ {
+		outArr = append(outArr, generatePermutationsString(i, charset, separator))
+	}
+
+	fmt.Println(strings.Join(outArr, separator))
 }
 
-func generateString(passwdLen int, charset string, wg *sync.WaitGroup) []string {
-	var out []string
+func getOSArgInt(prefix string, keys []string, defaultValue int64) (int64, error) {
+	noMatchString := "-"
+	valueStr := GetOSArg(prefix, keys, noMatchString)
 
-	if wg != nil {
-		defer wg.Done()
+	if valueStr != noMatchString {
+		return strconv.ParseInt(valueStr, 10, 64)
 	}
 
-	possibilities := math.Pow(float64(len(charset)), float64(passwdLen))
-	for i := 0; i < int(possibilities); i++ {
-		tempout := ""
-		val := i
+	return defaultValue, nil
+}
 
-		for j := 0; j < passwdLen; j++ {
-			ch := val % len(charset)
-			tempout = fmt.Sprintf("%c%s", charset[ch], tempout)
-			val = val / len(charset)
+func GetOSArg(prefix string, keys []string, defaultValue string) string {
+	for _, arg := range os.Args[1:] {
+		parsed := strings.Split(arg, "=")
+
+		if strings.HasPrefix(parsed[0], prefix) {
+			for _, key := range keys {
+				if parsed[0][len(prefix):] == key {
+					return parsed[1]
+				}
+			}
 		}
+	}
+
+	return defaultValue
+}
+
+func generatePermutationsString(perm_len int, charset string, sep string) string {
+	var out []string
+
+	possibilities := math.Pow(float64(len(charset)), float64(perm_len))
+	for i := 0; i < int(possibilities); i++ {
+		var tempout string
+		possibility := i
+
+		for j := 0; j < perm_len; j++ {
+			ch := possibility % len(charset)
+			tempout = fmt.Sprintf("%c%s", charset[ch], tempout)
+			possibility = possibility / len(charset)
+		}
+
 		out = append(out, tempout)
 	}
 
-	return out
+	return strings.Join(out, sep)
 }
