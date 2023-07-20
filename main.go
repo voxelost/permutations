@@ -9,29 +9,18 @@ import (
 )
 
 func main() {
-	var outArr []string
-
 	prefix := "--"
 
 	separator := GetOSArg(prefix, []string{"sep", "separator"}, " ")
 
-	start_perm_len, err := getOSArgInt(prefix, []string{"len", "startlen"}, 3)
-	if err != nil {
-		panic(err.Error())
-	}
-
-	end_perm_len, err := getOSArgInt(prefix, []string{"endlen"}, start_perm_len)
+	word_len, err := getOSArgInt(prefix, []string{"len", "length"}, 3)
 	if err != nil {
 		panic(err.Error())
 	}
 
 	charset := GetOSArg(prefix, []string{"chrs", "charset"}, "abcdefghijklmnopqrstuvwxyz")
 
-	for i := int(start_perm_len); i <= int(end_perm_len); i++ {
-		outArr = append(outArr, generatePermutationsString(i, charset, separator))
-	}
-
-	fmt.Println(strings.Join(outArr, separator))
+	fmt.Println(generatePermutationsString(int(word_len), charset, separator))
 }
 
 func getOSArgInt(prefix string, keys []string, defaultValue int64) (int64, error) {
